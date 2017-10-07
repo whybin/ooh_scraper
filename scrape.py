@@ -1,7 +1,10 @@
 import logging
 
+from Sipper.scraper.include.config import config
 from Sipper.scraper.src.database import databases
 from Sipper.scraper.src.models.model import Model
+from Sipper.scraper.src.utils import absolute_url
+from Sipper.scraper.src.scraper import Scraper
 
 logger = logging.getLogger(name="scraper")
 
@@ -24,5 +27,28 @@ def scrape_groups_once(scraper):
     logger.info("Finished scraping group names")
 
 def scrape_range(scraper, fro, to):
-    if scraper.data is None:
+    if type(scraper.data) is str:
         scraper.scrape()
+
+    groups = scraper.data.select(".ooh-groups-col li a")
+    occ_db = databases["occupation"]
+    occ_index = len(occ_db)
+
+    to = min(to, len(groups)) # Cap the upper bound
+
+    # For now, assume `i` is group ID
+    for i in range(fro, to):
+        href = absolute_url(config["site.start_url"], groups[i]["href"])
+        href = href.rsplit("/", 1)[0]
+        group_scraper = Scraper(href).read().scrape()
+
+        occ_rows = group_scraper.data.select("#landing-page-table tr")
+        for row in occ_rows:
+            if row.td is None:
+                continue
+
+            link = row.select("td")[1].a
+            occ_name = link.string.strip()
+            occ_url = absolute_url(config["site.start_url"], link["href"])
+
+            occ_scraper = Scraper(occ_url).read().scrape()
