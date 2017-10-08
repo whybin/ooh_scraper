@@ -1,4 +1,4 @@
-import logging
+import logging, re
 
 from Sipper.scraper.include.config import config
 from Sipper.scraper.src.database import databases
@@ -7,6 +7,17 @@ from Sipper.scraper.src.utils import absolute_url
 from Sipper.scraper.src.scraper import Scraper
 
 logger = logging.getLogger(name="scraper")
+number_rgx = "([\d,.]+)"
+
+def extract_number(text):
+    """
+    :param text:
+    :type text: string
+    :returns: None|float
+    """
+    num = re.search(number_rgx, text)
+    return (num if num is None
+            else float(num.group(0).replace(",", "")))
 
 def scrape_groups_once(scraper):
     group_db = databases["group"]
