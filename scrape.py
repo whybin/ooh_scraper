@@ -10,6 +10,7 @@ from Sipper.scraper.src.scraper import Scraper
 
 logger = logging.getLogger(name="scraper")
 number_rgx = "([\d,.]+)"
+NA_TEXT = "-"
 
 def extract_number(text):
     """
@@ -20,6 +21,16 @@ def extract_number(text):
     num = re.search(number_rgx, text)
     return (num if num is None
             else float(num.group(0).replace(",", "")))
+
+def handle_expected_string(text):
+    """
+    Handle text where a string is expected but could be a nested HTML element
+    instead.
+    :param text:
+    :type text: None|string
+    :returns: string
+    """
+    return text.strip() if text is not None else NA_TEXT
 
 def scrape_groups_once(scraper):
     group_db = databases["group"]
@@ -110,9 +121,9 @@ def scrape_range(scraper, fro, to):
             data.update({
                 "pay_per_year": per_year,
                 "pay_per_hour": per_hour,
-                "entry_level": quick_facts[1].string.strip(),
-                "work_experience": quick_facts[2].string.strip(),
-                "job_training": quick_facts[3].string.strip(),
+                "entry_level": handle_expected_string(quick_facts[1].string),
+                "work_experience": handle_expected_string(quick_facts[2].string),
+                "job_training": handle_expected_string(quick_facts[3].string),
                 "total_jobs": extract_number(quick_facts[4].string),
                 "job_growth": extract_number(quick_facts[5].string),
                 "total_new_jobs": extract_number(quick_facts[6].string),
