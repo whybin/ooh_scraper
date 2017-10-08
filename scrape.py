@@ -89,11 +89,15 @@ def scrape_range(scraper, fro, to):
 
             occ_url = absolute_url(config["site.start_url"], link["href"])
 
+            brief = row.select("td")[2].p
+            if brief is None:
+                continue
+
             data = {
                     "id": occ_index,
                     "category_id": i,
                     "name": occ_name,
-                    "brief": row.select("td")[2].p.string
+                    "brief": brief.string
                     }
 
             logger.info("Scraping occupation: " + occ_name)
