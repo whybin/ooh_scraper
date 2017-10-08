@@ -40,6 +40,8 @@ def scrape_range(scraper, fro, to):
     for i in range(fro, to):
         href = absolute_url(config["site.start_url"], groups[i]["href"])
         href = href.rsplit("/", 1)[0]
+
+        logger.info("Scraping group: " + groups[i].string.strip())
         group_scraper = Scraper(href).read().scrape()
 
         occ_rows = group_scraper.data.select("#landing-page-table tr")
@@ -51,4 +53,5 @@ def scrape_range(scraper, fro, to):
             occ_name = link.string.strip()
             occ_url = absolute_url(config["site.start_url"], link["href"])
 
+            logger.info("Scraping occupation: " + occ_name)
             occ_scraper = Scraper(occ_url).read().scrape()
