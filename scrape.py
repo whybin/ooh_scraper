@@ -9,7 +9,7 @@ from Sipper.scraper.src.utils import absolute_url
 from Sipper.scraper.src.scraper import Scraper
 
 logger = logging.getLogger(name="scraper")
-number_rgx = "([\d,.]+)"
+number_rgx = "([\d,.\-]*\d)"
 NA_TEXT = "-"
 
 def extract_number(text):
